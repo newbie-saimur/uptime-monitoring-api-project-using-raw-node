@@ -80,6 +80,7 @@ handler._users.post = (requestProperties, callback) => {
     }
 };
 
+// TODO: Need authentication
 handler._users.get = (requestProperties, callback) => {
     const phone = typeof requestProperties.queryStringObject.phone === 'string'
         && requestProperties.queryStringObject.phone.trim().length === 11
@@ -105,6 +106,7 @@ handler._users.get = (requestProperties, callback) => {
     }
 };
 
+// TODO: Need authentication
 handler._users.put = (requestProperties, callback) => {
     const firstName = typeof requestProperties.body.firstName === 'string'
         && requestProperties.body.firstName.trim().length > 0
@@ -163,6 +165,7 @@ handler._users.put = (requestProperties, callback) => {
     }
 };
 
+// TODO: Need authentication
 handler._users.delete = (requestProperties, callback) => {
     const phone = typeof requestProperties.queryStringObject.phone === 'string'
         && requestProperties.queryStringObject.phone.trim().length === 11
