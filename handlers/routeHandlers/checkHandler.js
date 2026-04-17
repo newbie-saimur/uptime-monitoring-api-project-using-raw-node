@@ -135,7 +135,74 @@ handler._check.get = (requestProperties, callback) => {
         });
     }
 };
-// handler._check.put = (requestProperties, callback) => {};
+
+handler._check.put = (requestProperties, callback) => {
+    const phone = typeof requestProperties.body.phone === 'string' && requestProperties.body.phone.length === 11 ? requestProperties.body.phone : false;
+
+    const protocol = typeof requestProperties.body.protocol === 'string' && ['http', 'https'].indexOf(requestProperties.body.protocol) >= 0 ? requestProperties.body.protocol : false;
+
+    const url = typeof requestProperties.body.url === 'string' && requestProperties.body.url.length > 0 ? requestProperties.body.url : false;
+
+    const method = typeof requestProperties.body.method === 'string' && ['GET', 'POST', 'PUT', 'DELETE'].indexOf(requestProperties.body.method.toUpperCase()) >= 0 ? requestProperties.body.method.toUpperCase() : false;
+
+    const successCodes = typeof requestProperties.body.successCodes === 'object' && requestProperties.body.successCodes instanceof Array ? requestProperties.body.successCodes : false;
+
+    const timeoutSeconds = typeof requestProperties.body.timeoutSeconds === 'number' && requestProperties.body.timeoutSeconds > 0 && requestProperties.body.timeoutSeconds <= 5 ? requestProperties.body.timeoutSeconds : false;
+
+    if (phone && (protocol || url || method || successCodes || timeoutSeconds)) {
+        lib.read('users', phone, (readingError, userData) => {
+            if (!readingError && userData) {
+                const token = typeof requestProperties.headersObject.token === 'string' && requestProperties.headersObject.token.length === 20 ? requestProperties.headersObject.token : false;
+
+                tokenHandler._token.verify(token, phone, (isValid) => {
+                    if (isValid) {
+                        const checkId = typeof requestProperties.queryStringObject.id === 'string' && requestProperties.queryStringObject.id.length === 20 ? requestProperties.queryStringObject.id : false;
+                        lib.read('checks', checkId, (readingError2, checkData) => {
+                            if (!readingError2 && checkData) {
+                                const checkObject = parseJSON(checkData);
+                                if (protocol) checkObject.protocol = protocol;
+                                if (url) checkObject.url = url;
+                                if (method) checkObject.method = method;
+                                if (successCodes) checkObject.successCodes = successCodes;
+                                if (timeoutSeconds) checkObject.timeoutSeconds = timeoutSeconds;
+
+                                lib.update('checks', checkId, checkObject, (updateError) => {
+                                    if (!updateError) {
+                                        callback(200, {
+                                            message: 'Check was updated successfully!',
+                                            checkData: checkObject,
+                                        });
+                                    } else {
+                                        callback(500, {
+                                            error: 'There is a problem in the server side!',
+                                        });
+                                    }
+                                });
+                            } else {
+                                callback(404, {
+                                    error: 'Requested check data was not found!',
+                                });
+                            }
+                        });
+                    } else {
+                        callback(403, {
+                            error: 'Authentication Failure!',
+                        });
+                    }
+                });
+            } else {
+                callback(404, {
+                    error: 'Requested user was not found!',
+                });
+            }
+        });
+    } else {
+        callback(400, {
+            error: 'There is a problem in your request!',
+        });
+    }
+};
+
 // handler._check.delete = (requestProperties, callback) => {};
 
 module.exports = handler;

@@ -1,1 +1,1 @@
-{"checkId":"DoOiyzKuqO85rkzM6eLm","phone":"01625047922","protocol":"http","url":"google.com","method":"POST","successCodes":[200,201,301],"timeoutSeconds":2}
+{"checkId":"DoOiyzKuqO85rkzM6eLm","phone":"01625047922","protocol":"https","url":"google.com","method":"POST","successCodes":[200,201,301],"timeoutSeconds":2}
