@@ -203,6 +203,65 @@ handler._check.put = (requestProperties, callback) => {
     }
 };
 
-// handler._check.delete = (requestProperties, callback) => {};
+handler._check.delete = (requestProperties, callback) => {
+    const checkId = typeof requestProperties.queryStringObject.id === 'string' && requestProperties.queryStringObject.id.length === 20 ? requestProperties.queryStringObject.id : false;
+
+    const phone = typeof requestProperties.queryStringObject.phone === 'string' && requestProperties.queryStringObject.phone.length === 11 ? requestProperties.queryStringObject.phone : false;
+
+    if (phone && checkId) {
+        const token = typeof requestProperties.headersObject.token === 'string' && requestProperties.headersObject.token.length === 20 ? requestProperties.headersObject.token : false;
+
+        tokenHandler._token.verify(token, phone, (isValid) => {
+            if (isValid) {
+                lib.read('checks', checkId, (readingError, checkData) => {
+                    if (!readingError && checkData) {
+                        lib.delete('checks', checkId, (deleteError) => {
+                            if (!deleteError) {
+                                lib.read('users', phone, (readingError2, userData) => {
+                                    if (!readingError2 && userData) {
+                                        const user = parseJSON(userData);
+                                        user.checks.splice(checkId, 1);
+
+                                        lib.update('users', phone, user, (updateError) => {
+                                            if (!updateError) {
+                                                callback(200, {
+                                                    message: 'Requested check was deleted successfully!',
+                                                });
+                                            } else {
+                                                callback(500, {
+                                                    error: 'There was a server side error while updating the user data!',
+                                                });
+                                            }
+                                        });
+                                    } else {
+                                        callback(404, {
+                                            error: 'User data was not found!',
+                                        });
+                                    }
+                                });
+                            } else {
+                                callback(500, {
+                                    error: 'There was a server side error!',
+                                });
+                            }
+                        });
+                    } else {
+                        callback(404, {
+                            error: 'Requested check was not found!',
+                        });
+                    }
+                });
+            } else {
+                callback(403, {
+                    error: 'Authentication failure!',
+                });
+            }
+        });
+    } else {
+        callback(400, {
+            error: 'There is a problem in your request!',
+        });
+    }
+};
 
 module.exports = handler;
