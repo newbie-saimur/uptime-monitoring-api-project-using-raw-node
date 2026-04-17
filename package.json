@@ -13,6 +13,7 @@
     },
     "dependencies": {
         "cross-env": "^10.1.0",
-        "dotenv": "^17.4.2"
+        "dotenv": "^17.4.2",
+        "twilio": "^5.13.1"
     }
 }

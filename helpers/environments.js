@@ -3,13 +3,13 @@ const environments = {};
 environments.staging = {
     port: 3000,
     envName: 'staging',
-    secretKey: '5djLv6Ju3Gbea9dNaefQ',
+    secretKey: 'EaDOqhDrlmqbUoxUrnhKdz3pxm7mKybH',
 };
 
 environments.production = {
     port: 5000,
     envName: 'production',
-    secretKey: 'i1p5QngksStpKYPQDxlq',
+    secretKey: 'gRnbdfv5OlaB3GXFeJ0GVUxwQS8AeVnT',
 };
 
 const currentEnvironment =
