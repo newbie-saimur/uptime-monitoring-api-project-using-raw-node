@@ -65,7 +65,9 @@ handler._token.post = (requestProperties, callback) => {
 };
 
 handler._token.get = (requestProperties, callback) => {
-    const token = typeof requestProperties.queryStringObject.id === 'string' ? requestProperties.queryStringObject.id : false;
+    const token = typeof requestProperties.queryStringObject.id === 'string'
+            ? requestProperties.queryStringObject.id
+            : false;
     if (token) {
         lib.read('tokens', token, (readingError, tokenData) => {
             if (!readingError && tokenData) {
@@ -92,7 +94,9 @@ handler._token.get = (requestProperties, callback) => {
 };
 
 handler._token.put = (requestProperties, callback) => {
-    const token = typeof requestProperties.body.token === 'string' && requestProperties.body.token.length > 0 ? requestProperties.body.token : false;
+    const token = typeof requestProperties.body.token === 'string' && requestProperties.body.token.length > 0
+            ? requestProperties.body.token
+            : false;
 
     const extend = typeof requestProperties.body.extend === 'boolean' ? requestProperties.body.extend : false;
 
@@ -133,7 +137,9 @@ handler._token.put = (requestProperties, callback) => {
 };
 
 handler._token.delete = (requestProperties, callback) => {
-    const token = typeof requestProperties.queryStringObject.id === 'string' && requestProperties.queryStringObject.id.length > 0 ? requestProperties.queryStringObject.id : false;
+    const token = typeof requestProperties.queryStringObject.id === 'string' && requestProperties.queryStringObject.id.length > 0
+        ? requestProperties.queryStringObject.id
+        : false;
 
     if (token) {
         lib.read('tokens', token, (readingError, tokenData) => {
@@ -168,6 +174,20 @@ handler._token.deleteExpired = (token) => {
             console.log('Expired token deleted successfully!');
         } else {
             console.log('Expired token can not be deleted!');
+        }
+    });
+};
+
+handler._token.verify = (token, phone, callback) => {
+    lib.read('tokens', token, (readingError, tokenData) => {
+        if (!readingError && tokenData) {
+            if (parseJSON(tokenData).phone === phone && parseJSON(tokenData).expires > Date.now()) {
+                callback(true);
+            } else {
+                callback(false);
+            }
+        } else {
+            callback(false);
         }
     });
 };

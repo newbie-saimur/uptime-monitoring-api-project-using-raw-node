@@ -3,6 +3,7 @@
 // Dependencies
 const lib = require('../../lib/data');
 const { hash, parseJSON } = require('../../helpers/utilities');
+const tokenHandler = require('./tokenHandler');
 
 const handler = {};
 
@@ -58,8 +59,17 @@ handler._users.post = (requestProperties, callback) => {
                 // Create new user and store the user in the users directory
                 lib.create('users', phone, userObject, (err2) => {
                     if (!err2) {
-                        callback(200, {
-                            message: 'User is created successfully',
+                        tokenHandler._token.post(requestProperties, (statusCode, { body }) => {
+                            if (statusCode && body.token) {
+                                callback(200, {
+                                    message: 'User was created successfully',
+                                    token: body.token,
+                                });
+                            } else {
+                                callback(200, {
+                                    message: 'User was created successfully',
+                                });
+                            }
                         });
                     } else {
                         callback(500, {
@@ -80,23 +90,31 @@ handler._users.post = (requestProperties, callback) => {
     }
 };
 
-// TODO: Need authentication
 handler._users.get = (requestProperties, callback) => {
     const phone = typeof requestProperties.queryStringObject.phone === 'string'
         && requestProperties.queryStringObject.phone.trim().length === 11
             ? requestProperties.queryStringObject.phone.trim()
             : '';
     if (phone) {
-        // Check for the user
-        lib.read('users', phone, (err, userData) => {
-            if (!err && userData) {
-                const user = { ...parseJSON(userData) };
-                delete user.password;
-                callback(200, user);
+        const token = typeof requestProperties.headersObject.token === 'string' && requestProperties.headersObject.token.length === 20 ? requestProperties.headersObject.token : false;
+
+        tokenHandler._token.verify(token, phone, (isValid) => {
+            if (isValid) {
+                lib.read('users', phone, (err, userData) => {
+                    if (!err && userData) {
+                        const user = { ...parseJSON(userData) };
+                        delete user.password;
+                        callback(200, user);
+                    } else {
+                        callback(404, {
+                            error: 'Requested user was not found!',
+                        });
+                    }
+                });
             } else {
-                callback(404, {
-            error: 'Requested user was not found!',
-        });
+                callback(403, {
+                    error: 'Authentication Failure!',
+                });
             }
         });
     } else {
@@ -106,7 +124,6 @@ handler._users.get = (requestProperties, callback) => {
     }
 };
 
-// TODO: Need authentication
 handler._users.put = (requestProperties, callback) => {
     const firstName = typeof requestProperties.body.firstName === 'string'
         && requestProperties.body.firstName.trim().length > 0
@@ -129,32 +146,42 @@ handler._users.put = (requestProperties, callback) => {
             : '';
 
     if (phone) {
-        lib.read('users', phone, (err, userData) => {
-            if (!err && userData) {
-                const user = { ...parseJSON(userData) };
-                if (firstName) {
-                    user.firstName = firstName;
-                }
-                if (lastName) {
-                    user.lastName = lastName;
-                }
-                if (password) {
-                    user.password = password;
-                }
-                lib.update('users', phone, user, (err1) => {
-                    if (!err1) {
-                        callback(200, {
-                            message: 'User was updated successfully!',
+        const token = typeof requestProperties.headersObject.token === 'string' && requestProperties.headersObject.token.length === 20 ? requestProperties.headersObject.token : false;
+
+        tokenHandler._token.verify(token, phone, (isValid) => {
+            if (isValid) {
+                lib.read('users', phone, (err, userData) => {
+                    if (!err && userData) {
+                        const user = { ...parseJSON(userData) };
+                        if (firstName) {
+                            user.firstName = firstName;
+                        }
+                        if (lastName) {
+                            user.lastName = lastName;
+                        }
+                        if (password) {
+                            user.password = password;
+                        }
+                        lib.update('users', phone, user, (err1) => {
+                            if (!err1) {
+                                callback(200, {
+                                    message: 'User was updated successfully!',
+                                });
+                            } else {
+                                callback(500, {
+                                    error: 'Something went wrong. Try Again!',
+                                });
+                            }
                         });
                     } else {
                         callback(500, {
-                    error: 'Something went wrong. Try Again!',
-                });
+                            error: 'Invalid phone number. Please try again!',
+                        });
                     }
                 });
             } else {
-                callback(500, {
-                    error: 'Invalid phone number. Please try again!',
+                callback(403, {
+                    error: 'Authentication Failure!',
                 });
             }
         });
@@ -165,29 +192,39 @@ handler._users.put = (requestProperties, callback) => {
     }
 };
 
-// TODO: Need authentication
 handler._users.delete = (requestProperties, callback) => {
     const phone = typeof requestProperties.queryStringObject.phone === 'string'
         && requestProperties.queryStringObject.phone.trim().length === 11
             ? requestProperties.queryStringObject.phone.trim()
             : '';
     if (phone) {
-        lib.read('users', phone, (err, userData) => {
-            if (!err && userData) {
-                lib.delete('users', phone, (err2) => {
-                    if (!err2) {
-                        callback(200, {
-                            message: 'The requested user was deleted successfully!',
+        const token = typeof requestProperties.headersObject.token === 'string' && requestProperties.headersObject.token.length === 20 ? requestProperties.headersObject.token : false;
+
+        tokenHandler._token.verify(token, phone, (isValid) => {
+            if (isValid) {
+                lib.read('users', phone, (err, userData) => {
+                    if (!err && userData) {
+                        lib.delete('users', phone, (err2) => {
+                            if (!err2) {
+                                tokenHandler._token.deleteExpired(token);
+                                callback(200, {
+                                    message: 'The requested user was deleted successfully!',
+                                });
+                            } else {
+                                callback(500, {
+                                    error: 'Something went wrong. Try Again!',
+                                });
+                            }
                         });
                     } else {
-                        callback(500, {
-                            error: 'Something went wrong. Try Again!',
+                        callback(404, {
+                            error: 'Requested user was not found!',
                         });
                     }
                 });
             } else {
-                callback(404, {
-                    error: 'Requested user was not found!',
+                callback(403, {
+                    error: 'Authentication Failure!',
                 });
             }
         });
