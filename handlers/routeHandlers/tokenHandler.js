@@ -32,7 +32,7 @@ handler._token.post = (requestProperties, callback) => {
             if (!readingError && userData) {
                 const user = parseJSON(userData);
                 if (user.password === hash(password)) {
-                    const token = generateRandomString(20);
+                    const token = generateRandomString(32);
                     const expires = Date.now() + 24 * 60 * 60 * 1000;
                     const tokenObject = {
                         token,

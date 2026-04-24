@@ -102,7 +102,7 @@ handler._users.get = (requestProperties, callback) => {
     if (phone) {
         const token =
             typeof requestProperties.headersObject.token === 'string' &&
-            requestProperties.headersObject.token.length === 20
+            requestProperties.headersObject.token.length === 32
                 ? requestProperties.headersObject.token
                 : false;
 
@@ -160,7 +160,7 @@ handler._users.put = (requestProperties, callback) => {
     if (phone) {
         const token =
             typeof requestProperties.headersObject.token === 'string' &&
-            requestProperties.headersObject.token.length === 20
+            requestProperties.headersObject.token.length === 32
                 ? requestProperties.headersObject.token
                 : false;
 
@@ -217,7 +217,7 @@ handler._users.delete = (requestProperties, callback) => {
     if (phone) {
         const token =
             typeof requestProperties.headersObject.token === 'string' &&
-            requestProperties.headersObject.token.length === 20
+            requestProperties.headersObject.token.length === 32
                 ? requestProperties.headersObject.token
                 : false;
 

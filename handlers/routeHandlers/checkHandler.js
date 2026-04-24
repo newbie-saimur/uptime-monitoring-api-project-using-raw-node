@@ -59,7 +59,7 @@ handler._check.post = (requestProperties, callback) => {
             if (!readingError && userData) {
                 const token =
                     typeof requestProperties.headersObject.token === 'string' &&
-                    requestProperties.headersObject.token.length === 20
+                    requestProperties.headersObject.token.length === 32
                         ? requestProperties.headersObject.token
                         : false;
 
@@ -72,7 +72,7 @@ handler._check.post = (requestProperties, callback) => {
                                 : [];
 
                         if (checks.length < 5) {
-                            const checkId = generateRandomString(20);
+                            const checkId = generateRandomString(32);
                             const checkObject = {
                                 checkId,
                                 phone,
@@ -132,7 +132,7 @@ handler._check.post = (requestProperties, callback) => {
 handler._check.get = (requestProperties, callback) => {
     const checkId =
         typeof requestProperties.queryStringObject.id === 'string' &&
-        requestProperties.queryStringObject.id.length === 20
+        requestProperties.queryStringObject.id.length === 32
             ? requestProperties.queryStringObject.id
             : false;
 
@@ -144,7 +144,7 @@ handler._check.get = (requestProperties, callback) => {
 
     const token =
         typeof requestProperties.headersObject.token === 'string' &&
-        requestProperties.headersObject.token.length === 20
+        requestProperties.headersObject.token.length === 32
             ? requestProperties.headersObject.token
             : false;
 
@@ -218,7 +218,7 @@ handler._check.put = (requestProperties, callback) => {
             if (!readingError && userData) {
                 const token =
                     typeof requestProperties.headersObject.token === 'string' &&
-                    requestProperties.headersObject.token.length === 20
+                    requestProperties.headersObject.token.length === 32
                         ? requestProperties.headersObject.token
                         : false;
 
@@ -226,7 +226,7 @@ handler._check.put = (requestProperties, callback) => {
                     if (isValid) {
                         const checkId =
                             typeof requestProperties.queryStringObject.id === 'string' &&
-                            requestProperties.queryStringObject.id.length === 20
+                            requestProperties.queryStringObject.id.length === 32
                                 ? requestProperties.queryStringObject.id
                                 : false;
                         lib.read('checks', checkId, (readingError2, checkData) => {
@@ -278,7 +278,7 @@ handler._check.put = (requestProperties, callback) => {
 handler._check.delete = (requestProperties, callback) => {
     const checkId =
         typeof requestProperties.queryStringObject.id === 'string' &&
-        requestProperties.queryStringObject.id.length === 20
+        requestProperties.queryStringObject.id.length === 32
             ? requestProperties.queryStringObject.id
             : false;
 
@@ -291,7 +291,7 @@ handler._check.delete = (requestProperties, callback) => {
     if (phone && checkId) {
         const token =
             typeof requestProperties.headersObject.token === 'string' &&
-            requestProperties.headersObject.token.length === 20
+            requestProperties.headersObject.token.length === 32
                 ? requestProperties.headersObject.token
                 : false;
 
